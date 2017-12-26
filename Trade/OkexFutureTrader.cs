@@ -27,10 +27,10 @@ namespace OkexTrader.Trade
         FI_BCH,
     }    
 
-    public enum OkexFutureTradeType
+    public enum OkexFutureTradeDirectionType
     {
-        FTT_Buy,
-        FTT_Sell
+        FTD_Buy,
+        FTD_Sell
     }
 
     public enum OkexKLineType

@@ -20,7 +20,7 @@ namespace OkexTrader.Strategy
     //    CT_Agio      //贴水
     //}
 
-    class OkexTransferPositionByBasis
+    class OkexTransferPositionByBasis : OkexStrategy
     {
         public class OkexBasisDiffPositionData
         {
@@ -34,13 +34,13 @@ namespace OkexTrader.Strategy
                                                                         { "next_week", OkexFutureContractType.FC_NextWeek },
                                                                         { "quarter", OkexFutureContractType.FC_Quarter }};
 
-        const double minOrderUnit = 0.1;
+        //const double minOrderUnit = 0.1;
 
         private OkexFutureInstrumentType m_instrument = OkexFutureInstrumentType.FI_LTC;
         private OkexFutureContractType m_spotContract;
         private OkexFutureContractType m_forwardContract;
         //private OkexContractTrendType m_trendType;
-        private OkexFutureTradeType m_tradeType;
+        private OkexFutureTradeDirectionType m_tradeDirection;
         private OkexBasisCalcType m_basisCalcType = OkexBasisCalcType.BC_Ratio;
 
         private double m_basis = 0.0;
@@ -50,24 +50,26 @@ namespace OkexTrader.Strategy
         private double m_totalPosition = 0.0;
         private double m_ratio = 0.0;
         private double m_diff = 0.0;
+        private double m_boardLot = 1.0;
         private OkexBasisDiffPositionData[] m_fwBasisDiffArr = null;
         private OkexBasisDiffPositionData[] m_rvBasisDiffArr = null;
 
         HashSet<long> m_openOrders = new HashSet<long>();
         HashSet<long> m_closeOrders = new HashSet<long>();
 
-        public OkexTransferPositionByBasis(OkexFutureInstrumentType inst, OkexFutureContractType sc, OkexFutureContractType tc,
-                                            OkexBasisCalcType type, OkexFutureTradeType tradeType)
+        public OkexTransferPositionByBasis(OkexFutureInstrumentType inst, OkexFutureContractType sc, OkexFutureContractType fc,
+                                            OkexBasisCalcType type, OkexFutureTradeDirectionType tradeDir)
         {
             m_instrument = inst;
             m_basisCalcType = type;
             m_spotContract = sc;
-            m_forwardContract = tc;
-            m_tradeType = tradeType;
+            m_forwardContract = fc;
+            m_tradeDirection = tradeDir;
         }
 
-        public void init(double basis, double safe, double limit, uint count, double param)
+        public void init(double boardLot, double basis, double safe, double limit, uint count, double param)
         {
+            m_boardLot = boardLot;
             m_count = count;
             m_fwBasisDiffArr = new OkexBasisDiffPositionData[m_count];
             m_rvBasisDiffArr = new OkexBasisDiffPositionData[m_count];
@@ -161,35 +163,7 @@ namespace OkexTrader.Strategy
             }
         }
 
-        //public void init(double basis, double safe, double limit, uint count, double[] fwBdArr, double[] rvBdArr, double[] spAmountArr, double[] fwAmountArr)
-        //{
-        //    if (m_basisCalcType != OkexBasisCalcType.BC_Fix)
-        //    {
-        //        return;
-        //    }
-
-        //    m_count = count;
-        //    m_fwBasisDiffArr = new OkexBasisDiffPositionData[m_count];
-        //    m_rvBasisDiffArr = new OkexBasisDiffPositionData[m_count];
-        //    m_basis = basis;
-        //    m_safeRange = safe;
-        //    m_limitRange = limit;
-
-        //    double avgPosition = m_totalPosition / 2.0;
-
-        //    for (int i = 0; i < m_count; i++)
-        //    {
-        //        m_fwBasisDiffArr[i].basisDiff = fwBdArr[i];
-        //        m_fwBasisDiffArr[i].spotContractPosition = avgPosition - spAmountArr[i];
-        //        m_fwBasisDiffArr[i].forwardContractPosition = avgPosition + fwAmountArr[i];
-
-        //        m_rvBasisDiffArr[i].basisDiff = rvBdArr[i];
-        //        m_rvBasisDiffArr[i].spotContractPosition = avgPosition + spAmountArr[i];
-        //        m_rvBasisDiffArr[i].forwardContractPosition = avgPosition - fwAmountArr[i];
-        //    }
-        //}
-
-        public virtual void update()
+        public override void update()
         {
             double spotPrice = getCurPrice(m_spotContract);
             double forwardPrice = getCurPrice(m_forwardContract);
@@ -269,7 +243,7 @@ namespace OkexTrader.Strategy
             double avgPosition = (spotPosition + forwardPosition) / 2.0;
 
             bool asc = true;
-            if (m_tradeType == OkexFutureTradeType.FTT_Buy)
+            if (m_tradeDirection == OkexFutureTradeDirectionType.FTD_Buy)
             {
                 asc = false;
             }
@@ -288,18 +262,21 @@ namespace OkexTrader.Strategy
             if(curSpotPosition < targetFromtPosition)
             {
                 double spDiff = targetFromtPosition - curSpotPosition;
+                int nLot = (int)(spDiff / m_boardLot);
+                if(nLot <= 0)
+                {
+                    return;
+                }
+                double targetVol = m_boardLot * nLot;
                 OkexFutureDepthData fromDD = OkexFutureTrader.Instance.getMarketDepthData(m_instrument, fromContract);
                 OkexFutureDepthData toDD = OkexFutureTrader.Instance.getMarketDepthData(m_instrument, toContract);
-                if(m_tradeType == OkexFutureTradeType.FTT_Sell)
+                if(m_tradeDirection == OkexFutureTradeDirectionType.FTD_Sell)
                 {
                     double bidVol = fromDD.bids[0].volume;
                     double askVol = toDD.asks[0].volume;
                     double vol = Math.Min(bidVol, askVol);
-                    vol = Math.Min(vol, spDiff);
-                    if(vol <= minOrderUnit)
-                    {
-                        return;
-                    }
+                    vol = Math.Min(vol, targetVol);
+
                     long closeOrderID = OkexFutureTrader.Instance.trade(m_instrument, fromContract, fromDD.bids[0].price, vol, OkexContractTradeType.TT_CloseBuy);
                     m_closeOrders.Add(closeOrderID);
                     long openOrderID = OkexFutureTrader.Instance.trade(m_instrument, toContract, toDD.asks[0].price, vol, OkexContractTradeType.TT_OpenSell);
@@ -310,11 +287,8 @@ namespace OkexTrader.Strategy
                     double askVol = fromDD.asks[0].volume;
                     double bidVol = toDD.asks[0].volume;
                     double vol = Math.Min(askVol, bidVol);
-                    vol = Math.Min(vol, spDiff);
-                    if (vol <= minOrderUnit)
-                    {
-                        return;
-                    }
+                    vol = Math.Min(vol, targetVol);
+
                     long closeOrderID = OkexFutureTrader.Instance.trade(m_instrument, fromContract, fromDD.asks[0].price, vol, OkexContractTradeType.TT_CloseSell);
                     m_closeOrders.Add(closeOrderID);
                     long openOrderID = OkexFutureTrader.Instance.trade(m_instrument, toContract, toDD.bids[0].price, vol, OkexContractTradeType.TT_OpenBuy);
@@ -331,7 +305,7 @@ namespace OkexTrader.Strategy
             double avgPosition = (spotPosition + forwardPosition) / 2.0;
 
             bool asc = true;
-            if (m_tradeType == OkexFutureTradeType.FTT_Buy)
+            if (m_tradeDirection == OkexFutureTradeDirectionType.FTD_Buy)
             {
                 asc = false;
             }
@@ -364,7 +338,7 @@ namespace OkexTrader.Strategy
                 ret = -1;
             }
 
-            if (m_tradeType == OkexFutureTradeType.FTT_Buy)
+            if (m_tradeDirection == OkexFutureTradeDirectionType.FTD_Buy)
             {
                 ret = -ret;
             }
@@ -379,7 +353,7 @@ namespace OkexTrader.Strategy
                 return;
             }
 
-            if (m_tradeType == OkexFutureTradeType.FTT_Sell)
+            if (m_tradeDirection == OkexFutureTradeDirectionType.FTD_Sell)
             {
                 buildBasisDiffArray(ref m_fwBasisDiffArr, m_count, m_basis + m_safeRange, m_basis + m_limitRange);
                 buildBasisDiffArray(ref m_rvBasisDiffArr, m_count, m_basis - m_safeRange, m_basis - m_limitRange);
@@ -470,7 +444,7 @@ namespace OkexTrader.Strategy
             OkexFutureMarketData md = OkexFutureTrader.Instance.getMarketData(m_instrument, contract);
             if (md != null)
             {
-                //if(m_tradeType == OkexFutureTradeType.TT_Buy)
+                //if(m_tradeDirection == OkexFutureTradeDirectionType.TT_Buy)
                 //{
                 //    return md.sell;
                 //}
