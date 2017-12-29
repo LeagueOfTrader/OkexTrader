@@ -91,13 +91,13 @@ namespace OkexTrader
 
                 s = new OkexTransferPositionByBasis(fi, sc, fc, bc, dir);
 
-                double boardLot = (double)jo["BoardLot"];
+                //double boardLot = (double)jo["BoardLot"];
                 double basis = (double)jo["Basis"];
                 double safe = (double)jo["Safe"];
                 double limit = (double)jo["Limit"];
                 uint count = (uint)jo["Count"];
                 double param = (double)jo["Param"];
-                ((OkexTransferPositionByBasis)s).init(boardLot, basis, safe, limit, count, param);
+                ((OkexTransferPositionByBasis)s).init(basis, safe, limit, count, param);
             }
 
             return s;

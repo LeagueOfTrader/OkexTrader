@@ -55,9 +55,11 @@
     <Compile Include="StrategyMgr.cs" />
     <Compile Include="Strategy\OkexStrategy.cs" />
     <Compile Include="Strategy\OkexTransferPositionByBasis.cs" />
+    <Compile Include="Trade\OkexDefValueConvert.cs" />
     <Compile Include="Trade\OkexFutureTrader.cs" />
     <Compile Include="Trade\OkexParam.cs" />
     <Compile Include="Trade\OkexStockTrader.cs" />
+    <Compile Include="Trade\OkexStructDef.cs" />
     <Compile Include="Util\DateUtil.cs" />
     <Compile Include="Util\HttpUtilManager.cs" />
     <Compile Include="Util\StringUtil.cs" />
