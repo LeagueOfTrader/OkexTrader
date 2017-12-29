@@ -289,6 +289,57 @@ namespace OkexTrader.Trade
         public List<OkexContractInfo> contractsInfo = new List<OkexContractInfo>(); 
     }
 
+    class OkexPositionBriefInfo
+    {
+        public long contractID;
+        public OkexFutureInstrumentType instrument;
+        public OkexFutureContractType contractType;
+        public OkexFutureTradeDirectionType direction;
+        public uint leverRate;
+
+        public long amount;
+        public long available;
+        public double bond;
+        public double avgPrice;
+        public double costPrice;
+        public double flatPrice;
+
+        public OkexPositionBriefInfo()
+        {
+            //
+        }
+
+        public OkexPositionBriefInfo(OkexPositionInfo info, OkexFutureInstrumentType inst, 
+                                    OkexFutureContractType ct, OkexFutureTradeDirectionType dir)
+        {
+            contractID = info.contract_id;
+            instrument = inst;
+            contractType = ct;
+            direction = dir;
+
+            leverRate = info.lever_rate;
+
+            if(dir == OkexFutureTradeDirectionType.FTD_Buy)
+            {
+                amount = info.buy_amount;
+                available = info.buy_available;
+                avgPrice = info.buy_price_avg;
+                costPrice = info.buy_price_cost;
+                bond = info.buy_bond;
+                flatPrice = info.buy_flatprice;
+            }
+            else
+            {
+                amount = info.sell_amount;
+                available = info.sell_available;
+                avgPrice = info.sell_price_avg;
+                costPrice = info.sell_price_cost;
+                bond = info.sell_bond;
+                flatPrice = info.sell_flatprice;
+            }
+        }
+    }
+
     class OkexPositionInfo              //逐仓，仓位信息
     {
         private long contractID;
@@ -447,7 +498,7 @@ namespace OkexTrader.Trade
         public OkexContractTradeType tradeType;
         public int leverRate;
         public double price;
-        public double amount;
+        public long amount;
         public OkexOrderStatusType status;
         public long orderID;
     }
@@ -583,7 +634,7 @@ namespace OkexTrader.Trade
         }
 
         // 获取当前可用合约总持仓量
-        public long getHoldAmount(OkexFutureInstrumentType instrument, OkexFutureContractType contract)
+        public long getMarketHoldAmount(OkexFutureInstrumentType instrument, OkexFutureContractType contract)
         {
             string str = getRequest.future_hold_amount(instrumentQuotationName[(int)instrument], contractTypeName[(int)contract]);
             JArray arr = JArray.Parse(str);
@@ -641,6 +692,25 @@ namespace OkexTrader.Trade
             }
 
             return result;
+        }
+
+        // extension for position holding query
+        public List<OkexPositionBriefInfo> getHoldPosition(OkexFutureInstrumentType instrument, OkexFutureContractType contract, 
+                                    OkexFutureTradeDirectionType direction, uint leverRate)
+        {
+            List<OkexPositionBriefInfo> briefInfo = new List<OkexPositionBriefInfo>();
+            List<OkexPositionInfo> info;
+            bool hold = getFuturePosition(instrument, contract, out info);
+            if (hold)
+            {
+                foreach(var pi in info)
+                {
+                    pi.contract_type
+                    OkexPositionBriefInfo bi = new OkexPositionBriefInfo(pi, instrument, contract, direction);
+                }
+            }
+
+            return briefInfo;
         }
 
         // 交易 开仓平仓
@@ -706,7 +776,7 @@ namespace OkexTrader.Trade
                 foreach(var item in arr)
                 {
                     OkexFutureOrderBriefInfo obi = new OkexFutureOrderBriefInfo();
-                    obi.amount = (double)item["amount"];
+                    obi.amount = (long)item["amount"];
                     obi.contractName = (string)item["contract_name"];
                     obi.leverRate = (int)item["lever_rate"];
                     obi.price = (double)item["price"];
@@ -735,7 +805,7 @@ namespace OkexTrader.Trade
                 JArray arr = JArray.Parse(jo["orders"].ToString());
                 foreach (var item in arr)
                 {
-                    info.amount = (double)item["amount"];
+                    info.amount = (long)item["amount"];
                     info.contractName = (string)item["contract_name"];
                     info.leverRate = (int)item["lever_rate"];
                     info.price = (double)item["price"];

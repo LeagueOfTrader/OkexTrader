@@ -9,5 +9,10 @@ namespace OkexTrader.Strategy
     abstract class OkexStrategy
     {
         public abstract void update();
+
+        protected void trade()
+        {
+            //
+        }
     }
 }

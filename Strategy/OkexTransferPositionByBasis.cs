@@ -25,8 +25,8 @@ namespace OkexTrader.Strategy
         public class OkexBasisDiffPositionData
         {
             public double basisDiff = 0.0;
-            public double spotContractPosition = 0.0;
-            public double forwardContractPosition = 0.0;
+            public long spotContractPosition = 0;
+            public long forwardContractPosition = 0;
         }        
 
         Dictionary<string, OkexFutureContractType> contractTypeMap = new Dictionary<string, OkexFutureContractType>()
@@ -50,7 +50,6 @@ namespace OkexTrader.Strategy
         private double m_totalPosition = 0.0;
         private double m_ratio = 0.0;
         private double m_diff = 0.0;
-        private double m_boardLot = 1.0;
         private OkexBasisDiffPositionData[] m_fwBasisDiffArr = null;
         private OkexBasisDiffPositionData[] m_rvBasisDiffArr = null;
 
@@ -67,9 +66,8 @@ namespace OkexTrader.Strategy
             m_tradeDirection = tradeDir;
         }
 
-        public void init(double boardLot, double basis, double safe, double limit, uint count, double param)
+        public void init(double basis, double safe, double limit, uint count, double param)
         {
-            m_boardLot = boardLot;
             m_count = count;
             m_fwBasisDiffArr = new OkexBasisDiffPositionData[m_count];
             m_rvBasisDiffArr = new OkexBasisDiffPositionData[m_count];
@@ -253,21 +251,16 @@ namespace OkexTrader.Strategy
                      m_spotContract, m_forwardContract);
         }
 
-        private void transfer(double targetFromtPosition, double targetToPosition, 
+        private void transfer(long targetFromtPosition, long targetToPosition, 
                                 OkexFutureContractType fromContract, OkexFutureContractType toContract)
         {            
-            double curSpotPosition = getFreePositionByContract(fromContract);// - getOrderedPositionByContract(m_spotContract, true);
-            double curTargetForwardPosition = getPositionByContract(toContract) + getOrderedPositionByContract(toContract, true);
+            long curSpotPosition = getFreePositionByContract(fromContract);// - getOrderedPositionByContract(m_spotContract, true);
+            long curTargetForwardPosition = getPositionByContract(toContract) + getOrderedPositionByContract(toContract, true);
 
             if(curSpotPosition < targetFromtPosition)
             {
-                double spDiff = targetFromtPosition - curSpotPosition;
-                int nLot = (int)(spDiff / m_boardLot);
-                if(nLot <= 0)
-                {
-                    return;
-                }
-                double targetVol = m_boardLot * nLot;
+                long spDiff = targetFromtPosition - curSpotPosition;
+                long targetVol = spDiff;
                 OkexFutureDepthData fromDD = OkexFutureTrader.Instance.getMarketDepthData(m_instrument, fromContract);
                 OkexFutureDepthData toDD = OkexFutureTrader.Instance.getMarketDepthData(m_instrument, toContract);
                 if(m_tradeDirection == OkexFutureTradeDirectionType.FTD_Sell)
@@ -379,32 +372,32 @@ namespace OkexTrader.Strategy
             }
         }
 
-        private double getPositionByContract(OkexFutureContractType contract)
+        private long getPositionByContract(OkexFutureContractType contract)
         {
-            return OkexFutureTrader.Instance.getHoldAmount(m_instrument, contract);
+            //return OkexFutureTrader.Instance.getHoldAmount(m_instrument, contract);
         }
 
-        private double getFreePositionByContract(OkexFutureContractType contract)
-        {
-            List<OkexContractInfo> contracts = AccountInfo.Instance.getContractsByType(m_instrument, contract);
+        //private long getFreePositionByContract(OkexFutureContractType contract)
+        //{
+        //    List<OkexContractInfo> contracts = AccountInfo.Instance.getContractsByType(m_instrument, contract);
 
-            double availablePosition = 0.0;
-            foreach (var info in contracts)
-            {
-                OkexFutureContractType fc = contractTypeMap[info.contract_type];
-                if (fc == contract)
-                {
-                    availablePosition += info.available;
-                }
-            }
+        //    long availablePosition = 0.0;
+        //    foreach (var info in contracts)
+        //    {
+        //        OkexFutureContractType fc = contractTypeMap[info.contract_type];
+        //        if (fc == contract)
+        //        {
+        //            availablePosition += info.available;
+        //        }
+        //    }
 
-            return availablePosition;
-        }
+        //    return availablePosition;
+        //}
 
-        private double getOrderedPositionByContract(OkexFutureContractType contract, bool inOpenOrder)
+        private long getOrderedPositionByContract(OkexFutureContractType contract, bool inOpenOrder)
         {
             List<OkexFutureOrderBriefInfo> info;
-            double orderedPosition = 0.0;
+            long orderedPosition = 0;
             bool ret = OkexFutureTrader.Instance.getCurOrdersInfo(m_instrument, contract, out info);
             if (ret)
             {
