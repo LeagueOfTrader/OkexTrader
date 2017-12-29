@@ -32,6 +32,7 @@ namespace OkexTrader.Strategy
 
         protected void trade(OkexFutureInstrumentType instrument, OkexFutureContractType contract, double price, double volume, OkexContractTradeType type, uint leverRate = 10)
         {
+            return;
             long orderID = OkexFutureTrader.Instance.trade(instrument, contract, price, volume, type, leverRate);
             //return orderID;
             OkexLocalOrderBriefInfo lobi = new OkexLocalOrderBriefInfo(orderID, instrument, contract, leverRate);

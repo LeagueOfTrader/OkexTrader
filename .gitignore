@@ -13,3 +13,4 @@ obj/Debug/OkexTrader.csproj.FileListAbsolute.txt
 .vs/OkexTrader/v14/.suo
 bin/Debug/Newtonsoft.Json.dll
 *.TMP
+*.user

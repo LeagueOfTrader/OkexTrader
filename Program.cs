@@ -39,10 +39,9 @@ namespace OkexTrader
             //Dictionary<OkexFutureInstrumentType, OkexAccountInfo> info;
             //bool ret = ft.getUserInfo(out info);
 
-            List<OkexPositionInfo> info;
-            ft.getFuturePosition(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, out info);
+            //List<OkexPositionInfo> info;
+            //ft.getFuturePosition(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, out info);
 
-            return;
             //long orderID = ft.trade(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, 3000.0, 1, OkexContractTradeType.TT_OpenSell, 20, false);
             //ft.cancel(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, orderID);
 
@@ -55,6 +54,21 @@ namespace OkexTrader
             //    int n = info.Count;
             //    output(n.ToString());
             //}
+            //long amt = ft.getHoldPositionAmount(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, OkexFutureTradeDirectionType.FTD_Sell);
+
+            //List<OkexPositionInfo> pi;
+            //bool ret = ft.getFuturePosition(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, out pi);
+            //if (ret)
+            //{
+            //    amt = pi[0].sell_available;
+            //}
+            //StrategyMgr.Instance.init();
+
+            //while (true)
+            //{
+            //    StrategyMgr.Instance.update();
+            //}
+
         }
 
         

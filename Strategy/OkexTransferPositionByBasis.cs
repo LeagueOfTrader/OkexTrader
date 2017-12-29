@@ -130,10 +130,10 @@ namespace OkexTrader.Strategy
             for (int i = 0; i < m_count; i++)
             {
                 m_fwBasisDiffArr[i].spotContractPosition = (long)((1.0 - accumVal) * (double)avgPosition);
-                m_fwBasisDiffArr[i].forwardContractPosition = (long)((1.0 + accumVal) * (double)avgPosition);
+                m_fwBasisDiffArr[i].forwardContractPosition = m_totalPosition - m_fwBasisDiffArr[i].spotContractPosition;
 
-                m_rvBasisDiffArr[i].spotContractPosition = (long)((1.0 + accumVal) * (double)avgPosition);
                 m_rvBasisDiffArr[i].forwardContractPosition = (long)((1.0 - accumVal) * (double)avgPosition);
+                m_rvBasisDiffArr[i].spotContractPosition = m_totalPosition - m_rvBasisDiffArr[i].forwardContractPosition;
 
                 accumVal += m_ratio;
             }
@@ -146,10 +146,10 @@ namespace OkexTrader.Strategy
             for (int i = 0; i < m_count; i++)
             {
                 m_fwBasisDiffArr[i].spotContractPosition = avgPosition - accumVal;
-                m_fwBasisDiffArr[i].forwardContractPosition = avgPosition + accumVal;
-
-                m_rvBasisDiffArr[i].spotContractPosition = avgPosition + accumVal;
+                m_fwBasisDiffArr[i].forwardContractPosition = m_totalPosition - m_fwBasisDiffArr[i].spotContractPosition;
+               
                 m_rvBasisDiffArr[i].forwardContractPosition = avgPosition - accumVal;
+                m_rvBasisDiffArr[i].spotContractPosition = m_totalPosition - m_rvBasisDiffArr[i].forwardContractPosition;
 
                 accumVal += (long)m_diff;
             }
@@ -194,21 +194,20 @@ namespace OkexTrader.Strategy
             }
             uint index = getIndexInBDArray(ref m_fwBasisDiffArr, basisDiff, asc);
 
-            transfer(m_fwBasisDiffArr[index].spotContractPosition, m_fwBasisDiffArr[index].forwardContractPosition, 
-                     m_spotContract, m_forwardContract);
+            transferToTarget(m_fwBasisDiffArr[index].spotContractPosition, m_fwBasisDiffArr[index].forwardContractPosition, 
+                            m_spotContract, m_forwardContract);
         }
 
-        private void transfer(long targetFromtPosition, long targetToPosition, 
+        private void transferToTarget(long targetFromPosition, long targetToPosition, 
                                 OkexFutureContractType fromContract, OkexFutureContractType toContract)
         {            
-            long curSpotPosition = getAvailablePositionByContract(m_instrument, fromContract, m_tradeDirection);// - getOrderedPositionByContract(m_spotContract, true);
-            long curTargetForwardPosition = getPositionByContract(m_instrument, toContract, m_tradeDirection) 
-                                            + getOrderedPositionByContract(m_instrument, toContract, m_tradeDirection, true);
+            long curFromPosition = getAvailablePositionByContract(m_instrument, fromContract, m_tradeDirection);// - getOrderedPositionByContract(m_spotContract, true);
+            //long curTargetForwardPosition = getPositionByContract(m_instrument, toContract, m_tradeDirection) 
+            //                                + getOrderedPositionByContract(m_instrument, toContract, m_tradeDirection, true);
 
-            if(curSpotPosition < targetFromtPosition)
+            if(curFromPosition > targetFromPosition)
             {
-                long spDiff = targetFromtPosition - curSpotPosition;
-                long targetVol = spDiff;
+                long targetVol = curFromPosition - targetFromPosition;
                 OkexFutureDepthData fromDD = OkexFutureTrader.Instance.getMarketDepthData(m_instrument, fromContract);
                 OkexFutureDepthData toDD = OkexFutureTrader.Instance.getMarketDepthData(m_instrument, toContract);
                 if(m_tradeDirection == OkexFutureTradeDirectionType.FTD_Sell)
@@ -248,8 +247,8 @@ namespace OkexTrader.Strategy
             }
             uint index = getIndexInBDArray(ref m_rvBasisDiffArr, basisDiff, asc);
 
-            transfer(m_rvBasisDiffArr[index].forwardContractPosition, m_rvBasisDiffArr[index].spotContractPosition,
-                     m_forwardContract, m_spotContract);
+            transferToTarget(m_rvBasisDiffArr[index].forwardContractPosition, m_rvBasisDiffArr[index].spotContractPosition,
+                            m_forwardContract, m_spotContract);
         }
 
         private bool isBasisDiffEnough(double bd)
@@ -312,6 +311,7 @@ namespace OkexTrader.Strategy
 
             for (int i = 0; i < count; i++)
             {
+                arr[i] = new OkexBasisDiffPositionData();
                 arr[i].basisDiff = startVal + deltaVal * i;
             }
         }

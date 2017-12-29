@@ -33,6 +33,9 @@ namespace OkexTrader
         public void init()
         {
             string contents = System.IO.File.ReadAllText(runCfg);
+            contents = contents.Replace("\r", "");
+            contents = contents.Replace("\n", "");
+            contents = contents.Replace("\t", "");
             JArray arr = JArray.Parse(contents);
             foreach(var item in arr)
             {
