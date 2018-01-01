@@ -4,9 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OkexTrader.Trade;
+using System.Threading;
+using OkexTrader.MarketData;
+using OkexTrader.FutureTrade;
 
 namespace OkexTrader
-{
+{    
+
     class Program
     {
         static void output(String content)
@@ -69,8 +73,65 @@ namespace OkexTrader
             //    StrategyMgr.Instance.update();
             //}
 
+            Thread stThread = new Thread(strategyThread);
+            Thread mdThread = new Thread(marketDataThread);
+            Thread tdThread = new Thread(tradeThread);
+
+            mdThread.Start();
+            tdThread.Start();
+            stThread.Start();
         }
 
-        
+        //static int mdThreadLastTick = 0;
+        //static int tdThreadLastTick = 0;
+        //static int stThreadLastTick = 0;
+
+        const int MD_FREQ = 100;
+        const int TD_FREQ = 10;
+        const int ST_FREQ = 30;
+
+        static void strategyThread()
+        {
+            while (true)
+            {
+                int beginTick = System.Environment.TickCount;
+                StrategyMgr.Instance.update();
+                int deltaTick = System.Environment.TickCount - beginTick;
+                if(deltaTick < ST_FREQ)
+                {
+                    Thread.Sleep(ST_FREQ - deltaTick);
+                }
+            }
+        }
+
+        static void marketDataThread()
+        {
+            while (true)
+            {
+                int beginTick = System.Environment.TickCount;
+                MarketDataMgr.Instance.update();
+                int deltaTick = System.Environment.TickCount - beginTick;
+                if (deltaTick < MD_FREQ)
+                {
+                    Thread.Sleep(MD_FREQ - deltaTick);
+                }
+            }
+        }
+
+        static void tradeThread()
+        {
+            while (true)
+            {
+                int beginTick = System.Environment.TickCount;
+                FutureTradeMgr.Instance.update();
+                int deltaTick = System.Environment.TickCount - beginTick;
+                if (deltaTick < TD_FREQ)
+                {
+                    Thread.Sleep(TD_FREQ - deltaTick);
+                }
+            }
+        }
+
+
     }
 }
