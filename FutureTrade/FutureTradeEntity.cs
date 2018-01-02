@@ -6,35 +6,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace OkexTrader.FutureTrade
 {
+    public enum OkexTradeQueryResultType
+    {
+        TQR_Timeout,
+        TQR_Unfinished,
+        TQR_Finished
+    }
+
     abstract class FutureTradeEntity
     {
+        public delegate void TradeEventHandler(long orderID, OkexTradeQueryResultType result, OkexFutureOrderBriefInfo info);
+        public event TradeEventHandler tradeEventHandler;
+
+        public long queryInterval = 10;
+
         public void trade(OkexFutureInstrumentType instrument, OkexFutureContractType contract,
             double price, long volume, OkexContractTradeType type, uint leverRate = 10)
         {
-            OkexFutureTrader.Instance.tradeAsync(instrument, contract, price, volume, type, onTradeResult, leverRate);
+            FutureTradeMgr.Instance.trade(this, instrument, contract, price, volume, type, leverRate);            
         }
 
-        private void onTradeResult(String str)
+        abstract public void onTradeOrdered(long orderID);
+
+        public void onTradeEvent(long orderID, OkexTradeQueryResultType result, OkexFutureOrderBriefInfo info)
         {
-            JObject jo = (JObject)JsonConvert.DeserializeObject(str);
-            bool ret = (bool)jo["result"];
-            if (!ret)
-            {
-                return;
-            }
-
-            long orderID = (long)jo["order_id"];
-            onTradeOrdered(orderID);
+            tradeEventHandler(orderID, result, info);
         }
-
-        protected virtual void onTradeOrdered(long orderID)
-        {
-            //
-        }
-
-        abstract protected void onQueryOrderStatus(OkexOrderStatusType status);
     }
 }

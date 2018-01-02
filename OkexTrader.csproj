@@ -64,6 +64,7 @@
     <Compile Include="AccountInfo.cs" />
     <Compile Include="Common\Singleton.cs" />
     <Compile Include="FutureTrade\FutureTradeEntity.cs" />
+    <Compile Include="FutureTrade\FutureTradeMgr.cs" />
     <Compile Include="GlobalSetting.cs" />
     <Compile Include="MarketData\MarketDataMgr.cs" />
     <Compile Include="MarketData\MarketDataUpdater.cs" />

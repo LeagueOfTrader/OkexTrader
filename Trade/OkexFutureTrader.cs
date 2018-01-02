@@ -329,6 +329,12 @@ namespace OkexTrader.Trade
             return ret;
         }
 
+        public void cancelAsync(OkexFutureInstrumentType instrument, OkexFutureContractType contract, long orderID, HttpAsyncReq.ResponseCallback callback)
+        {
+            postRequest.future_cancel_async(OkexDefValueConvert.getInstrumentStr(instrument), OkexDefValueConvert.getContractTypeStr(contract), 
+                                            orderID.ToString(), callback);
+        }
+
         public bool getCurOrdersInfo(OkexFutureInstrumentType instrument, OkexFutureContractType contract, 
                                     out List<OkexFutureOrderBriefInfo> briefInfo, bool finished = false)
         {

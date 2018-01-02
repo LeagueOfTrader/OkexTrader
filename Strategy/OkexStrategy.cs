@@ -28,7 +28,7 @@ namespace OkexTrader.Strategy
     {
         public abstract void update();
 
-        protected override void onTradeOrdered(long orderID)
+        public override void onTradeOrdered(long orderID)
         {
             //
         }

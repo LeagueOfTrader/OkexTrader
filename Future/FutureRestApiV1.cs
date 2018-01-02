@@ -1029,5 +1029,48 @@ namespace com.okcoin.rest.future
                 throw e;
             }
         }
+        /// <summary>
+        ///  取消订单
+        /// </summary>
+        /// <param name="symbol">btc_usd:比特币    ltc_usd :莱特币</param>
+        /// <param name="contractType">合约类型: this_week:当周   next_week:下周   month:当月   quarter:季度</param>
+        /// <param name="orderId">订单ID</param>
+        /// <returns></returns>
+        public void future_cancel_async(String symbol, String contractType,
+            String orderId, HttpAsyncReq.ResponseCallback callback)
+        {
+            try
+            {  // 构造参数签名
+                Dictionary<String, String> paras = new Dictionary<String, String>();
+
+                if (!StringUtil.isEmpty(contractType))
+                {
+                    paras.Add("contract_type", contractType);
+                }
+                if (!StringUtil.isEmpty(orderId))
+                {
+                    paras.Add("order_id", orderId);
+                }
+                if (!StringUtil.isEmpty(api_key))
+                {
+                    paras.Add("api_key", api_key);
+                }
+                if (!StringUtil.isEmpty(symbol))
+                {
+                    paras.Add("symbol", symbol);
+                }
+                String sign = MD5Util.buildMysignV1(paras, secret_key);
+
+                paras.Add("sign", sign);
+                // 发送post请求
+
+                HttpUtilManager httpUtil = HttpUtilManager.getInstance();
+                httpUtil.requestHttpPostAsync(url_prex, FUTURE_CANCEL_URL, paras, callback);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
 }
