@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace OkexTrader.FutureTrade
 {
-    class FutureTradeEntity
+    abstract class FutureTradeEntity
     {
         public void trade(OkexFutureInstrumentType instrument, OkexFutureContractType contract,
             double price, long volume, OkexContractTradeType type, uint leverRate = 10)
@@ -32,9 +32,9 @@ namespace OkexTrader.FutureTrade
 
         protected virtual void onTradeOrdered(long orderID)
         {
-            string content = "Trade ordered: " + orderID;
-            Console.WriteLine(content);
-            System.Diagnostics.Debug.WriteLine(content);
+            //
         }
+
+        abstract protected void onQueryOrderStatus(OkexOrderStatusType status);
     }
 }

@@ -72,6 +72,7 @@
     <Compile Include="Future\FutureRestApiV1.cs" />
     <Compile Include="Future\IFutureRestApi.cs" />
     <Compile Include="StrategyMgr.cs" />
+    <Compile Include="Strategy\OkexBasicStrategy.cs" />
     <Compile Include="Strategy\OkexStrategy.cs" />
     <Compile Include="Strategy\OkexTransferPositionByBasis.cs" />
     <Compile Include="Trade\OkexDefValueConvert.cs" />

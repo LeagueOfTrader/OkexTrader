@@ -30,8 +30,8 @@ namespace OkexTrader
             //mdThread.Start();
             //tdThread.Start();
             //stThread.Start();
-            FutureTradeEntity fte = new FutureTradeEntity();
-            fte.trade(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, 5000.0, 1, OkexContractTradeType.TT_OpenSell, 10);
+            //FutureTradeEntity fte = new FutureTradeEntity();
+            //fte.trade(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, 5000.0, 1, OkexContractTradeType.TT_OpenSell, 10);
         }
 
         const int MD_FREQ = 100;

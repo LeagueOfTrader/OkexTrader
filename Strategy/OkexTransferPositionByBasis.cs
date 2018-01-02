@@ -20,7 +20,7 @@ namespace OkexTrader.Strategy
     //    CT_Agio      //贴水
     //}
 
-    class OkexTransferPositionByBasis : OkexStrategy
+    class OkexTransferPositionByBasis : OkexBasicStrategy
     {
         public class OkexBasisDiffPositionData
         {
@@ -176,9 +176,6 @@ namespace OkexTrader.Strategy
             {
                 tryTransferToSpot(basisDiff);
             }
-
-            // remove finished orders
-            checkOrders();
         }
 
         private void tryTransferToForward(double basisDiff)
