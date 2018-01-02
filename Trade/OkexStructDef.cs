@@ -131,18 +131,23 @@ namespace OkexTrader.Trade
             get { return unitAmout; }
             set { unitAmout = value; }
         }
+
+        public long timestamp;
+        public long receiveTimestamp;
     }
 
     class OkexOrderInfo
     {
         public double price = 0.0;
-        public double volume = 0;
+        public long volume = 0;
     }
 
     class OkexFutureDepthData
     {
         public OkexOrderInfo[] asks = new OkexOrderInfo[5];
         public OkexOrderInfo[] bids = new OkexOrderInfo[5];
+        public long sendTimestamp = 0;
+        public long receiveTimestamp = 0;
 
         public OkexFutureDepthData()
         {

@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.IO;
+using OkexTrader.Util;
+
 namespace com.okcoin.rest
 {
     /// <summary>
@@ -146,5 +148,11 @@ namespace com.okcoin.rest
             return responseContent;
         }
 
+
+        public void requestHttpPostAsync(String url_prex, String url, Dictionary<String, String> paras, HttpAsyncReq.ResponseCallback callback)
+        {
+            HttpAsyncReq req = new HttpAsyncReq();
+            req.requestHttpPostAsync(url_prex, url, paras, callback);
+        }
     }
 }

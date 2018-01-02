@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OkexTrader.Common;
+using OkexTrader.Util;
 
 namespace OkexTrader.Trade
 {
@@ -47,6 +48,8 @@ namespace OkexTrader.Trade
             //}
             OkexFutureMarketData md = new OkexFutureMarketData();
             md = (OkexFutureMarketData)JsonConvert.DeserializeObject(jo["ticker"].ToString(), typeof(OkexFutureMarketData));
+            md.timestamp = long.Parse((string)jo["date"]);
+            md.receiveTimestamp = DateUtil.getCurTimestamp(); //System.Environment.TickCount;
             return md;
         }
 
@@ -54,6 +57,7 @@ namespace OkexTrader.Trade
         public OkexFutureDepthData getMarketDepthData(OkexFutureInstrumentType instrument, OkexFutureContractType contract)
         {
             OkexFutureDepthData dd = new OkexFutureDepthData();
+            dd.sendTimestamp = DateUtil.getCurTimestamp();//System.Environment.TickCount;
             string str = getRequest.future_depth(OkexDefValueConvert.getInstrumentStr(instrument), OkexDefValueConvert.getContractTypeStr(contract));
             JObject jo = (JObject)JsonConvert.DeserializeObject(str);
             JArray bidArr = JArray.Parse(jo["bids"].ToString());
@@ -62,13 +66,13 @@ namespace OkexTrader.Trade
             {
                 JArray ordArr = JArray.Parse(bidArr[i].ToString());
                 double p = (double)ordArr[0];
-                double v = (double)ordArr[1];
+                long v = (long)ordArr[1];
                 dd.bids[i].price = p;
                 dd.bids[i].volume = v;
 
                 ordArr = JArray.Parse(askArr[i].ToString());
                 p = (double)ordArr[0];
-                v = (double)ordArr[1];
+                v = (long)ordArr[1];
                 dd.asks[i].price = p;
                 dd.asks[i].volume = v;
             }
@@ -260,7 +264,7 @@ namespace OkexTrader.Trade
         }
 
         // 交易 开仓平仓
-        public long trade(OkexFutureInstrumentType instrument, OkexFutureContractType contract, double price, double amount, OkexContractTradeType tradeType, 
+        public long trade(OkexFutureInstrumentType instrument, OkexFutureContractType contract, double price, long amount, OkexContractTradeType tradeType, 
                             uint leverRate = 10, bool matchPrice = false)
         {
             string strMatchPrice = "";
@@ -290,6 +294,30 @@ namespace OkexTrader.Trade
 
             long orderID = (long)jo["order_id"];
             return orderID;
+        }
+
+        public void tradeAsync(OkexFutureInstrumentType instrument, OkexFutureContractType contract, double price, long amount, OkexContractTradeType tradeType,
+                           HttpAsyncReq.ResponseCallback callback, uint leverRate = 10, bool matchPrice = false)
+        {
+            string strMatchPrice = "";
+            if (matchPrice)
+            {
+                strMatchPrice = "1";
+            }
+            else
+            {
+                strMatchPrice = "0";
+            }
+
+            if (leverRate != 10 && leverRate != 20)
+            {
+                leverRate = 10;
+            }
+
+            uint nType = (uint)tradeType;
+            postRequest.future_async_trade_ex(OkexDefValueConvert.getInstrumentStr(instrument), OkexDefValueConvert.getContractTypeStr(contract), 
+                                        price.ToString(), amount.ToString(), nType.ToString(),
+                                        strMatchPrice, leverRate.ToString(), callback);
         }
 
         public bool cancel(OkexFutureInstrumentType instrument, OkexFutureContractType contract, long orderID)

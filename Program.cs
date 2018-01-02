@@ -21,81 +21,39 @@ namespace OkexTrader
 
         static void Main(string[] args)
         {
-            OkexFutureTrader ft = new OkexFutureTrader();
-            //String str = "----";
+            //MarketDataMgr.Instance.subscribeInstrument(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter);
+            //MarketDataMgr.Instance.subscribeInstrument(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_NextWeek);
+            //Thread stThread = new Thread(strategyThread);
+            //Thread mdThread = new Thread(marketDataThread);
+            //Thread tdThread = new Thread(tradeThread);
 
-            //ft.getMarketData(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter);
-
-            //OkexFutureDepthData dd = ft.getMarketDepthData(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter);
-
-            //ft.getTradesInfo(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter);
-
-            //ft.getFutureIndex(OkexFutureInstrumentType.FI_LTC);
-
-            //ft.getExchangeRate();
-
-            //ft.getEstimatePrice(OkexFutureInstrumentType.FI_LTC);
-
-            //List<OkexKLineData> kl = ft.getKLineData(OkexFutureInstrumentType.FI_BTC, OkexFutureContractType.FC_NextWeek, OkexKLineType.KL_1Min);
-
-            //ft.getHoldAmount(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter);
-
-            //Dictionary<OkexFutureInstrumentType, OkexAccountInfo> info;
-            //bool ret = ft.getUserInfo(out info);
-
-            //List<OkexPositionInfo> info;
-            //ft.getFuturePosition(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, out info);
-
-            //long orderID = ft.trade(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, 3000.0, 1, OkexContractTradeType.TT_OpenSell, 20, false);
-            //ft.cancel(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, orderID);
-
-            //AccountInfo ai = new AccountInfo();
-            //ai.init();
-
-            //List<OkexContractInfo> info = ai.getContractsByType(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter);
-            //if(info != null)
-            //{
-            //    int n = info.Count;
-            //    output(n.ToString());
-            //}
-            //long amt = ft.getHoldPositionAmount(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, OkexFutureTradeDirectionType.FTD_Sell);
-
-            //List<OkexPositionInfo> pi;
-            //bool ret = ft.getFuturePosition(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, out pi);
-            //if (ret)
-            //{
-            //    amt = pi[0].sell_available;
-            //}
-            //StrategyMgr.Instance.init();
-
-            //while (true)
-            //{
-            //    StrategyMgr.Instance.update();
-            //}
-
-            Thread stThread = new Thread(strategyThread);
-            Thread mdThread = new Thread(marketDataThread);
-            Thread tdThread = new Thread(tradeThread);
-
-            mdThread.Start();
-            tdThread.Start();
-            stThread.Start();
+            //mdThread.Start();
+            //tdThread.Start();
+            //stThread.Start();
+            FutureTradeEntity fte = new FutureTradeEntity();
+            fte.trade(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, 5000.0, 1, OkexContractTradeType.TT_OpenSell, 10);
         }
-
-        //static int mdThreadLastTick = 0;
-        //static int tdThreadLastTick = 0;
-        //static int stThreadLastTick = 0;
 
         const int MD_FREQ = 100;
         const int TD_FREQ = 10;
-        const int ST_FREQ = 30;
+        const int ST_FREQ = 100;
 
         static void strategyThread()
         {
             while (true)
             {
                 int beginTick = System.Environment.TickCount;
-                StrategyMgr.Instance.update();
+                //StrategyMgr.Instance.update();
+                OkexFutureDepthData dd = MarketDataMgr.Instance.getDepthData(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter);
+                if (dd != null)
+                {
+                    output("Depth Data, deltaTime: " + (dd.receiveTimestamp - dd.sendTimestamp) + ", bid1: " + dd.bids[0].price + ", ask1: " + dd.asks[0].price);
+                }
+                OkexFutureMarketData md = MarketDataMgr.Instance.getMarketData(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_NextWeek);
+                if(md != null)
+                {
+                    output("Market Data, date: " + md.timestamp + " , receive: " + md.receiveTimestamp + " , last price: " + md.last);
+                }
                 int deltaTick = System.Environment.TickCount - beginTick;
                 if(deltaTick < ST_FREQ)
                 {
@@ -109,7 +67,7 @@ namespace OkexTrader
             while (true)
             {
                 int beginTick = System.Environment.TickCount;
-                MarketDataMgr.Instance.update();
+                //MarketDataMgr.Instance.update();
                 int deltaTick = System.Environment.TickCount - beginTick;
                 if (deltaTick < MD_FREQ)
                 {
@@ -123,7 +81,7 @@ namespace OkexTrader
             while (true)
             {
                 int beginTick = System.Environment.TickCount;
-                FutureTradeMgr.Instance.update();
+                //FutureTradeMgr.Instance.update();                
                 int deltaTick = System.Environment.TickCount - beginTick;
                 if (deltaTick < TD_FREQ)
                 {

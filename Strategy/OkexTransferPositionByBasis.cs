@@ -212,9 +212,9 @@ namespace OkexTrader.Strategy
                 OkexFutureDepthData toDD = OkexFutureTrader.Instance.getMarketDepthData(m_instrument, toContract);
                 if(m_tradeDirection == OkexFutureTradeDirectionType.FTD_Sell)
                 {
-                    double bidVol = fromDD.bids[0].volume;
-                    double askVol = toDD.asks[0].volume;
-                    double vol = Math.Min(bidVol, askVol);
+                    long bidVol = fromDD.bids[0].volume;
+                    long askVol = toDD.asks[0].volume;
+                    long vol = Math.Min(bidVol, askVol);
                     vol = Math.Min(vol, targetVol);
 
                     trade(m_instrument, fromContract, fromDD.bids[0].price, vol, OkexContractTradeType.TT_CloseBuy);
@@ -222,9 +222,9 @@ namespace OkexTrader.Strategy
                 }
                 else
                 {
-                    double askVol = fromDD.asks[0].volume;
-                    double bidVol = toDD.asks[0].volume;
-                    double vol = Math.Min(askVol, bidVol);
+                    long askVol = fromDD.asks[0].volume;
+                    long bidVol = toDD.asks[0].volume;
+                    long vol = Math.Min(askVol, bidVol);
                     vol = Math.Min(vol, targetVol);
 
                     trade(m_instrument, fromContract, fromDD.asks[0].price, vol, OkexContractTradeType.TT_CloseSell);

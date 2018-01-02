@@ -30,7 +30,8 @@ namespace OkexTrader.Strategy
         protected Dictionary<long, OkexLocalOrderBriefInfo> m_openOrders = new Dictionary<long, OkexLocalOrderBriefInfo>();
         protected Dictionary<long, OkexLocalOrderBriefInfo> m_closeOrders = new Dictionary<long, OkexLocalOrderBriefInfo>();
 
-        protected void trade(OkexFutureInstrumentType instrument, OkexFutureContractType contract, double price, double volume, OkexContractTradeType type, uint leverRate = 10)
+        protected void trade(OkexFutureInstrumentType instrument, OkexFutureContractType contract, 
+            double price, long volume, OkexContractTradeType type, uint leverRate = 10)
         {
             return;
             long orderID = OkexFutureTrader.Instance.trade(instrument, contract, price, volume, type, leverRate);
@@ -183,11 +184,11 @@ namespace OkexTrader.Strategy
 
         protected double getCurSellPrice(OkexFutureInstrumentType instrument, OkexFutureContractType contract)
         {
-            OkexFutureMarketData md = OkexFutureTrader.Instance.getMarketData(instrument, contract);
-            if (md != null)
-            {
-                return md.sell;
-            }
+            //OkexFutureMarketData md = OkexFutureTrader.Instance.getMarketData(instrument, contract);
+            //if (md != null)
+            //{
+            //    return md.sell;
+            //}
             return 0.0;
         }
 

@@ -63,8 +63,10 @@
   <ItemGroup>
     <Compile Include="AccountInfo.cs" />
     <Compile Include="Common\Singleton.cs" />
-    <Compile Include="FutureTradeMgr.cs" />
-    <Compile Include="MarketDataMgr.cs" />
+    <Compile Include="FutureTrade\FutureTradeEntity.cs" />
+    <Compile Include="GlobalSetting.cs" />
+    <Compile Include="MarketData\MarketDataMgr.cs" />
+    <Compile Include="MarketData\MarketDataUpdater.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Future\FutureRestApiV1.cs" />
@@ -78,6 +80,7 @@
     <Compile Include="Trade\OkexStockTrader.cs" />
     <Compile Include="Trade\OkexStructDef.cs" />
     <Compile Include="Util\DateUtil.cs" />
+    <Compile Include="Util\HttpAsyncReq.cs" />
     <Compile Include="Util\HttpUtilManager.cs" />
     <Compile Include="Util\StringUtil.cs" />
     <Compile Include="Util\MD5Util.cs" />

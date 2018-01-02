@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OkexTrader.MarketData
@@ -19,6 +20,8 @@ namespace OkexTrader.MarketData
         private Dictionary<OkexFutureInstrumentType, Dictionary<OkexFutureContractType, OkexFutureMarketData>> m_marketData =
             new Dictionary<OkexFutureInstrumentType, Dictionary<OkexFutureContractType, OkexFutureMarketData>>();
 
+        private Dictionary<int, Timer> m_timers = new Dictionary<int, Timer>();
+
         public void subscribeInstrument(OkexFutureInstrumentType instrument, OkexFutureContractType contract)
         {
             if (!m_subscribedContracts.ContainsKey(instrument))
@@ -33,6 +36,9 @@ namespace OkexTrader.MarketData
             }
 
             m_subscribedContracts[instrument].Add(contract);
+
+            //int timerID = genTargetID(instrument, contract);
+            //Timer t = new Timer();
         }
 
         public void unsubscribeInstrument(OkexFutureInstrumentType instrument, OkexFutureContractType contract)
@@ -133,6 +139,13 @@ namespace OkexTrader.MarketData
             }
 
             return m_marketData[instrument][contract];
+        }
+
+        private int genTargetID(OkexFutureInstrumentType instrument, OkexFutureContractType contract)
+        {
+            int inst = (int)instrument;
+            int cntr = (int)contract;
+            return inst * 10000 + cntr;
         }
     }
 }

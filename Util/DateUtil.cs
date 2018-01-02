@@ -124,5 +124,12 @@ namespace OkexTrader.Util
 
             return 0;
         }
+
+        public static DateTime dateTime1970 = DateTime.Parse("1970-1-1");
+        public static long getCurTimestamp()
+        {
+            TimeSpan ts = DateTime.Now - dateTime1970;
+            return (long)ts.TotalMilliseconds;
+        }
     }
 }
