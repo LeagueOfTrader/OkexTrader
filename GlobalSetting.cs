@@ -8,8 +8,9 @@ namespace OkexTrader
 {
     class GlobalSetting
     {
-        public static int marketDataInterval = 100;
-        public static int strategyInterval = 30;
-        public static int tradeQueryInterval = 10;
+        public static long marketDataInterval = 100;
+        public static long strategyInterval = 30;
+        public static long tradeQueryInterval = 10;
+        public static long marketDataBias = 25;
     }
 }

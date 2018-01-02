@@ -1,5 +1,6 @@
 ﻿using OkexTrader.Common;
 using OkexTrader.Trade;
+using OkexTrader.Util;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -153,6 +154,40 @@ namespace OkexTrader.MarketData
         private int genTargetID(OkexFutureInstrumentType instrument, OkexFutureContractType contract)
         {
             return (int)instrument * 10000 + (int)contract;
+        }
+
+        public OkexFutureDepthData getDepthDataWithTimeLimit(OkexFutureInstrumentType instrument, OkexFutureContractType contract, long limitMillisec)
+        {
+            OkexFutureDepthData dd = getDepthData(instrument, contract);
+            if(dd == null)
+            {
+                return null;
+            }
+
+            long curTimestamp = DateUtil.getCurTimestamp();
+            if(curTimestamp - dd.receiveTimestamp - GlobalSetting.marketDataBias > limitMillisec)
+            {
+                return null;
+            }
+
+            return dd;
+        }
+
+        public OkexFutureMarketData getMarketDataWithTimeLimit(OkexFutureInstrumentType instrument, OkexFutureContractType contract, long limitMillisec)
+        {
+            OkexFutureMarketData md = getMarketData(instrument, contract);
+            if (md == null)
+            {
+                return null;
+            }
+
+            long curTimestamp = DateUtil.getCurTimestamp();
+            if (curTimestamp - md.receiveTimestamp - GlobalSetting.marketDataBias > limitMillisec)
+            {
+                return null;
+            }
+
+            return md;
         }
     }
 }
