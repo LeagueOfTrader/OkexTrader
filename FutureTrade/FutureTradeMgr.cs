@@ -21,14 +21,22 @@ namespace OkexTrader.FutureTrade
         public OkexFutureInstrumentType instrument;
         public OkexFutureContractType contract;
         public FutureTradeEntity entity;
+        private bool valid = true;
 
-        public FutureTradeTracer(string id, FutureTradeEntity fte, long queryInterval = 100)
+        private object tracerLock = new object();
+
+        public FutureTradeTracer(string id, FutureTradeEntity fte, 
+                                OkexFutureInstrumentType inst, OkexFutureContractType cntr, 
+                                long queryInterval = 1000)
         {
             localID = id;
             entity = fte;    
             
             queryTimer = new Timer(queryInterval);
-            resultTimer = new Timer(10);
+            resultTimer = new Timer(1000);
+
+            instrument = inst;
+            contract = cntr;
 
             queryTimer.Elapsed += new ElapsedEventHandler(queryTrade);
             resultTimer.Elapsed += new ElapsedEventHandler(onTimeout);
@@ -36,7 +44,9 @@ namespace OkexTrader.FutureTrade
 
         public void start()
         {
-            if(queryTimer != null)
+            valid = true;
+
+            if (queryTimer != null)
             {
                 queryTimer.Start();
             }
@@ -45,47 +55,64 @@ namespace OkexTrader.FutureTrade
             {
                 resultTimer.Start();
             }
+
+            //System.Diagnostics.Debug.WriteLine("Start trace: " + orderID + ", tick: " + System.Environment.TickCount);
         }
 
         public void stop()
         {
-            if (queryTimer != null)
+            lock (tracerLock)
             {
-                queryTimer.Stop();
-            }
+                valid = false;
 
-            if (resultTimer != null)
-            {
-                resultTimer.Stop();
+                //System.Diagnostics.Debug.WriteLine("Stop trace: " + orderID + ", tick: " + System.Environment.TickCount);
+                if (queryTimer != null)
+                {
+                    queryTimer.Stop();
+                    queryTimer.Enabled = false;
+                }
+
+                if (resultTimer != null)
+                {
+                    resultTimer.Stop();
+                }
             }
         }
 
         private void queryTrade(object sender, ElapsedEventArgs e)
         {
-            if(orderID == 0)
+            lock (tracerLock)
             {
-                entity.onTradeEvent(orderID, OkexTradeQueryResultType.TQR_Timeout, null);
-                return;
-            }
+                if (!valid)
+                {
+                    return;
+                }
 
-            OkexFutureOrderBriefInfo info;
-            if(resultTimer != null)
-            {
-                resultTimer.Start();
-            }
-            bool ret = OkexFutureTrader.Instance.getOrderInfoByID(instrument, contract, orderID, out info);
-            if (ret)
-            {
+                if (orderID == 0)
+                {
+                    entity.onTradeEvent(orderID, OkexTradeQueryResultType.TQR_Timeout, null);
+                    return;
+                }
+
+                OkexFutureOrderBriefInfo info;
                 if (resultTimer != null)
                 {
-                    resultTimer.Stop();
+                    resultTimer.Start();
                 }
-                OkexTradeQueryResultType tqr = getResultType(info.status);
-                entity.onTradeEvent(orderID, tqr, info);
-                if(tqr == OkexTradeQueryResultType.TQR_Finished)
+                bool ret = OkexFutureTrader.Instance.getOrderInfoByID(instrument, contract, orderID, out info);
+                if (ret)
                 {
-                    stop();
-                    FutureTradeMgr.Instance.removeTracer(localID);
+                    if (resultTimer != null)
+                    {
+                        resultTimer.Stop();
+                    }
+                    OkexTradeQueryResultType tqr = getResultType(info.status);
+                    entity.onTradeEvent(orderID, tqr, info);
+                    if (tqr == OkexTradeQueryResultType.TQR_Finished)
+                    {
+                        stop();
+                        FutureTradeMgr.Instance.removeTracer(localID);
+                    }
                 }
             }
         }
@@ -108,6 +135,7 @@ namespace OkexTrader.FutureTrade
             entity.onTradeOrdered(orderID);
             FutureTradeMgr.Instance.bindOrderID(orderID, localID);
             //start();
+            //System.Diagnostics.Debug.WriteLine("Order accepted: " + orderID + ", tick: " + System.Environment.TickCount);
         }
 
         private static OkexTradeQueryResultType getResultType(OkexOrderStatusType status)
@@ -139,7 +167,7 @@ namespace OkexTrader.FutureTrade
 
             long queryInterval = entity.queryInterval;
             string guid = Guid.NewGuid().ToString();
-            FutureTradeTracer tracer = new FutureTradeTracer(guid, entity, queryInterval);
+            FutureTradeTracer tracer = new FutureTradeTracer(guid, entity, instrument, contract, queryInterval);
             m_tracers.TryAdd(guid, tracer);
             OkexFutureTrader.Instance.tradeAsync(instrument, contract, price, volume, type, tracer.onTradeResult, leverRate);
             tracer.start();
@@ -152,6 +180,7 @@ namespace OkexTrader.FutureTrade
 
         public void stopTrace(long orderID)
         {
+            //System.Diagnostics.Debug.WriteLine("Stop trace: " + orderID + ", tick: " + System.Environment.TickCount);
             if (!m_idMap.ContainsKey(orderID))
             {
                 return;

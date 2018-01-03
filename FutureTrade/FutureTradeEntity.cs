@@ -34,7 +34,10 @@ namespace OkexTrader.FutureTrade
 
         public void onTradeEvent(long orderID, OkexTradeQueryResultType result, OkexFutureOrderBriefInfo info)
         {
-            tradeEventHandler(orderID, result, info);
+            if (tradeEventHandler != null)
+            {
+                tradeEventHandler(orderID, result, info);
+            }
         }
     }
 }
