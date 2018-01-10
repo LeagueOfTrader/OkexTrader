@@ -68,6 +68,8 @@
     <Compile Include="GlobalSetting.cs" />
     <Compile Include="MarketData\MarketDataMgr.cs" />
     <Compile Include="MarketData\MarketDataUpdater.cs" />
+    <Compile Include="MarketData\StockDataMgr.cs" />
+    <Compile Include="MarketData\StockDataUpdater.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Future\FutureRestApiV1.cs" />

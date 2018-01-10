@@ -136,7 +136,7 @@ namespace OkexTrader.Trade
         public long receiveTimestamp;
     }
 
-    class OkexOrderInfo
+    class OkexFutureOrderInfo
     {
         public double price = 0.0;
         public long volume = 0;
@@ -144,8 +144,8 @@ namespace OkexTrader.Trade
 
     class OkexFutureDepthData
     {
-        public OkexOrderInfo[] asks = new OkexOrderInfo[5];
-        public OkexOrderInfo[] bids = new OkexOrderInfo[5];
+        public OkexFutureOrderInfo[] asks = new OkexFutureOrderInfo[5];
+        public OkexFutureOrderInfo[] bids = new OkexFutureOrderInfo[5];
         public long sendTimestamp = 0;
         public long receiveTimestamp = 0;
 
@@ -153,8 +153,8 @@ namespace OkexTrader.Trade
         {
             for (int i = 0; i < 5; i++)
             {
-                bids[i] = new OkexOrderInfo();
-                asks[i] = new OkexOrderInfo();
+                bids[i] = new OkexFutureOrderInfo();
+                asks[i] = new OkexFutureOrderInfo();
             }
         }
     }
@@ -501,5 +501,82 @@ namespace OkexTrader.Trade
         public long amount;
         public OkexOrderStatusType status;
         public long orderID;
+    }
+
+    //
+    public enum OkexCoinType
+    {
+        CT_BTC,
+        CT_LTC,
+        CT_ETH,
+        CT_ETC,
+        CT_BCH,
+        CT_USDT
+    }
+
+    class OkexStockOrderInfo
+    {
+        public double price = 0.0;
+        public double volume = 0.0;
+    }
+
+    class OkexStockDepthData
+    {
+        public OkexStockOrderInfo[] asks = new OkexStockOrderInfo[10];
+        public OkexStockOrderInfo[] bids = new OkexStockOrderInfo[10];
+        public long sendTimestamp = 0;
+        public long receiveTimestamp = 0;
+
+        public OkexStockDepthData()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                bids[i] = new OkexStockOrderInfo();
+                asks[i] = new OkexStockOrderInfo();
+            }
+        }
+    }
+
+    class OkexStockMarketData
+    {
+        private double buyPrice;
+        public double buy
+        {
+            get { return buyPrice; }
+            set { buyPrice = value; }
+        }
+        private double highPrice;
+        public double high
+        {
+            get { return highPrice; }
+            set { highPrice = value; }
+        }
+        private double sellPrice;
+        public double sell
+        {
+            get { return sellPrice; }
+            set { sellPrice = value; }
+        }
+        private double lowPrice;
+        public double low
+        {
+            get { return lowPrice; }
+            set { lowPrice = value; }
+        }
+        private double lastPrice;
+        public double last
+        {
+            get { return lastPrice; }
+            set { lastPrice = value; }
+        }
+        private double volume;
+        public double vol
+        {
+            get { return volume; }
+            set { volume = value; }
+        }
+
+        public long timestamp;
+        public long receiveTimestamp;
     }
 }

@@ -1,4 +1,5 @@
-﻿using OkexTrader.MarketData;
+﻿using OkexTrader.FutureTrade;
+using OkexTrader.MarketData;
 using OkexTrader.Trade;
 using System;
 using System.Collections.Generic;
@@ -91,5 +92,10 @@ namespace OkexTrader.Strategy
                 return (tradeType == OkexContractTradeType.TT_CloseSell || tradeType == OkexContractTradeType.TT_OpenSell);
             }
         }
+
+        //public override void update()
+        //{
+        //    //
+        //}
     }
 }

@@ -8,6 +8,7 @@ namespace OkexTrader.Trade
 {
     class OkexDefValueConvert
     {
+        // future
         static string[] contractTypeName = { "this_week", "next_week", "quarter" };
         static Dictionary<string, OkexFutureContractType> contractTypeMap = new Dictionary<string, OkexFutureContractType>()
                                                                     { { "this_week", OkexFutureContractType.FC_ThisWeek },
@@ -22,7 +23,7 @@ namespace OkexTrader.Trade
                                                                         { "etc_usd", OkexFutureInstrumentType.FI_ETC },
                                                                         { "bch_usd", OkexFutureInstrumentType.FI_BCH }};
 
-        static string[] coinName = { "btc", "ltc", "eth", "etc", "bch" };
+        static string[] coinName = { "btc", "ltc", "eth", "etc", "bch", "usdt" };
 
         static string[] kLineTypeName = { "1min", "3min", "5min", "15min", "30min", "1hour", "2hour", "4hour", "6hour", "12hour", "day", "3day", "week" };
 
@@ -54,6 +55,12 @@ namespace OkexTrader.Trade
         public static string getKLineTypeStr(OkexKLineType kLineType)
         {
             return kLineTypeName[(int)kLineType];
+        }
+
+        // stock
+        public static string getCoinName(OkexCoinType ct)
+        {
+            return coinName[(int)ct];
         }
     }
 }

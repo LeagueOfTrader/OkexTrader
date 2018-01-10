@@ -73,8 +73,8 @@ namespace OkexTrader.Trade
                 ordArr = JArray.Parse(askArr[i].ToString());
                 p = (double)ordArr[0];
                 v = (long)ordArr[1];
-                dd.asks[i].price = p;
-                dd.asks[i].volume = v;
+                dd.asks[4 - i].price = p;
+                dd.asks[4 - i].volume = v;
             }
             return dd;
         }

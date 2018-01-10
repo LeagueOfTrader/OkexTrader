@@ -16,16 +16,17 @@ namespace OkexTrader
     {
         static void output(String content)
         {
-            //Console.WriteLine(content);
-            //System.Diagnostics.Debug.WriteLine(content);
+            Console.WriteLine(content);
+            System.Diagnostics.Debug.WriteLine(content);
         }
 
         static void Main(string[] args)
         {
             MarketDataMgr.Instance.subscribeInstrument(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter);
             MarketDataMgr.Instance.subscribeInstrument(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_NextWeek);
+            StockDataMgr.Instance.subscribeInstrument(OkexCoinType.CT_BCH, OkexCoinType.CT_USDT);
 
-            StrategyMgr.Instance.init();
+            //StrategyMgr.Instance.init();
             Thread stThread = new Thread(strategyThread);
             //Thread mdThread = new Thread(marketDataThread);
             //Thread tdThread = new Thread(tradeThread);
@@ -48,17 +49,29 @@ namespace OkexTrader
             while (true)
             {
                 int beginTick = System.Environment.TickCount;
-                StrategyMgr.Instance.update();
+                //StrategyMgr.Instance.update();
                 //OkexFutureDepthData dd = MarketDataMgr.Instance.getDepthDataWithTimeLimit(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_Quarter, 80);
                 //if (dd != null)
                 //{
                 //    output("Depth Data, deltaTime: " + (dd.receiveTimestamp - dd.sendTimestamp) + ", bid1: " + dd.bids[0].price + ", ask1: " + dd.asks[0].price);
                 //}
                 //OkexFutureMarketData md = MarketDataMgr.Instance.getMarketDataWithTimeLimit(OkexFutureInstrumentType.FI_LTC, OkexFutureContractType.FC_NextWeek, 50);
-                //if(md != null)
+                //if (md != null)
                 //{
                 //    output("Market Data, date: " + md.timestamp + " , receive: " + md.receiveTimestamp + " , last price: " + md.last);
                 //}
+
+
+                OkexStockDepthData dd = StockDataMgr.Instance.getDepthData(OkexCoinType.CT_BCH, OkexCoinType.CT_USDT);
+                if (dd != null)
+                {
+                    output("Depth Data, deltaTime: " + (dd.receiveTimestamp - dd.sendTimestamp) + ", bid1: " + dd.bids[0].price + ", ask1: " + dd.asks[0].price);
+                }
+                OkexStockMarketData md = StockDataMgr.Instance.getMarketData(OkexCoinType.CT_BCH, OkexCoinType.CT_USDT);
+                if (md != null)
+                {
+                    output("Market Data, date: " + md.timestamp + " , receive: " + md.receiveTimestamp + " , last price: " + md.last);
+                }
                 int deltaTick = System.Environment.TickCount - beginTick;
                 if(deltaTick < ST_FREQ)
                 {
