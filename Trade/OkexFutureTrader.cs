@@ -373,7 +373,7 @@ namespace OkexTrader.Trade
         public bool getOrderInfoByID(OkexFutureInstrumentType instrument, OkexFutureContractType contract,
                                      long orderID, out OkexFutureOrderBriefInfo info)
         {
-            List<OkexFutureOrderBriefInfo> ordersBriefInfo = new List<OkexFutureOrderBriefInfo>();
+            //List<OkexFutureOrderBriefInfo> ordersBriefInfo = new List<OkexFutureOrderBriefInfo>();
             string str = postRequest.future_order_info(OkexDefValueConvert.getInstrumentStr(instrument), OkexDefValueConvert.getContractTypeStr(contract), orderID.ToString(), "1", "0", "1");
 
             JObject jo = (JObject)JsonConvert.DeserializeObject(str);
@@ -397,6 +397,21 @@ namespace OkexTrader.Trade
             }
 
             return ret;
+        }
+
+        public void devolveAsync(OkexFutureInstrumentType instrument, OkexDevolveType devolveDir, double amount, HttpAsyncReq.ResponseCallback callback)
+        {
+            string symbol = OkexDefValueConvert.getInstrumentStr(instrument);
+            string type = "1";
+            if(devolveDir == OkexDevolveType.DT_Future2Stock)
+            {
+                type = "2";
+            }
+            else
+            {
+                type = "1";
+            }
+            postRequest.future_devolve_async(symbol, type, amount.ToString(), callback);
         }
     }
 }

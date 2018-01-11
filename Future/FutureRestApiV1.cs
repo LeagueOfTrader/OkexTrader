@@ -122,6 +122,9 @@ namespace com.okcoin.rest.future
         ///  获取期货爆仓单的URL
         /// </summary>
         private const String FUTURE_EXPLOSIVE_URL = "/api/v1/future_explosive.do";
+
+        private const String FUTURE_DEVOLVE_URL = "/api/v1/future_devolve.do";
+
         /// <summary>
         /// 获取OKCoin最新市场期货行情数据 
         /// </summary>
@@ -1066,6 +1069,43 @@ namespace com.okcoin.rest.future
 
                 HttpUtilManager httpUtil = HttpUtilManager.getInstance();
                 httpUtil.requestHttpPostAsync(url_prex, FUTURE_CANCEL_URL, paras, callback);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public void future_devolve_async(String symbol, String type,
+            String amount, HttpAsyncReq.ResponseCallback callback)
+        {
+            try
+            {  // 构造参数签名
+                Dictionary<String, String> paras = new Dictionary<String, String>();
+
+                if (!StringUtil.isEmpty(type))
+                {
+                    paras.Add("type", type);
+                }
+                if (!StringUtil.isEmpty(amount))
+                {
+                    paras.Add("amount", amount);
+                }
+                if (!StringUtil.isEmpty(api_key))
+                {
+                    paras.Add("api_key", api_key);
+                }
+                if (!StringUtil.isEmpty(symbol))
+                {
+                    paras.Add("symbol", symbol);
+                }
+                String sign = MD5Util.buildMysignV1(paras, secret_key);
+
+                paras.Add("sign", sign);
+                // 发送post请求
+
+                HttpUtilManager httpUtil = HttpUtilManager.getInstance();
+                httpUtil.requestHttpPostAsync(url_prex, FUTURE_DEVOLVE_URL, paras, callback);
             }
             catch (Exception e)
             {

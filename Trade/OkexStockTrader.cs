@@ -17,8 +17,6 @@ namespace OkexTrader.Trade
         StockRestApi getRequest;// = new StockRestApi(url_prex);
         StockRestApi postRequest;// = new StockRestApi(url_prex, api_key, secret_key);
 
-        //string[] instrumentsToUsdt = { "btc_usdt", "ltc_usdt", "eth_usdt",  "etc_usdt", "bch_usdt" };
-
         public OkexStockTrader()
         {
             getRequest = new StockRestApi(OkexParam.url_prex);
@@ -70,6 +68,67 @@ namespace OkexTrader.Trade
                 dd.asks[i].volume = v;
             }
             return dd;
+        }
+
+        public bool getOrderInfoByID(OkexCoinType commodity, OkexCoinType currency, long orderID, out OkexStockOrderBriefInfo info)
+        {
+            string c0 = OkexDefValueConvert.getCoinName(commodity);
+            string c1 = OkexDefValueConvert.getCoinName(currency);
+            string symbol = c0 + "_" + c1;
+            string str = postRequest.order_info(symbol, orderID.ToString());
+            JObject jo = (JObject)JsonConvert.DeserializeObject(str);
+            bool ret = (bool)jo["result"];
+
+            info = new OkexStockOrderBriefInfo();
+            if (ret)
+            {
+                JArray arr = JArray.Parse(jo["orders"].ToString());
+                foreach (var item in arr)
+                {
+                    info.amount = (double)item["amount"];
+                    info.price = (double)item["price"];
+                    info.createDate = (string)item["create_date"];
+                    info.avgDealPrice = (double)item["avg_price"];
+                    info.dealAmount = (double)item["deal_amount"];
+                    string strType = (string)item["type"];
+                    info.tradeType = OkexDefValueConvert.parseStockTradeType(strType);
+
+                    int nStatus = int.Parse((string)item["status"]);
+                    if(nStatus == 3)
+                    {
+                        nStatus = 4;
+                    }
+                    info.status = (OkexOrderStatusType)nStatus;
+                    info.orderID = (long)item["order_id"];
+
+                    info.commodity = commodity;
+                    info.currency = currency;
+
+                    break;
+                }
+            }
+            return ret;
+        }
+
+        public void tradeAsync(OkexCoinType commodity, OkexCoinType currency,
+                        OkexStockTradeType tradeType, double price, double amount, 
+                        HttpAsyncReq.ResponseCallback callback)
+        {
+            string c0 = OkexDefValueConvert.getCoinName(commodity);
+            string c1 = OkexDefValueConvert.getCoinName(currency);
+            string symbol = c0 + "_" + c1;
+            string strType = OkexDefValueConvert.getStockTradeTypeStr(tradeType);
+            postRequest.tradeAsync(symbol, strType, price.ToString(), amount.ToString(), callback);
+        }
+
+        public void cancelAysnc(OkexCoinType commodity, OkexCoinType currency,
+                        string orderID,
+                        HttpAsyncReq.ResponseCallback callback)
+        {
+            string c0 = OkexDefValueConvert.getCoinName(commodity);
+            string c1 = OkexDefValueConvert.getCoinName(currency);
+            string symbol = c0 + "_" + c1;
+            postRequest.cancelOrderAsync(symbol, orderID, callback);
         }
     }
 }

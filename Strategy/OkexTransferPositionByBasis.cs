@@ -214,8 +214,8 @@ namespace OkexTrader.Strategy
                     long vol = Math.Min(bidVol, askVol);
                     vol = Math.Min(vol, targetVol);
 
-                    trade(m_instrument, fromContract, fromDD.bids[0].price, vol, OkexContractTradeType.TT_CloseBuy);
-                    trade(m_instrument, toContract, toDD.asks[0].price, vol, OkexContractTradeType.TT_OpenSell);
+                    //trade(m_instrument, fromContract, fromDD.bids[0].price, vol, OkexContractTradeType.TT_CloseBuy);
+                    //trade(m_instrument, toContract, toDD.asks[0].price, vol, OkexContractTradeType.TT_OpenSell);
                 }
                 else
                 {
@@ -224,8 +224,8 @@ namespace OkexTrader.Strategy
                     long vol = Math.Min(askVol, bidVol);
                     vol = Math.Min(vol, targetVol);
 
-                    trade(m_instrument, fromContract, fromDD.asks[0].price, vol, OkexContractTradeType.TT_CloseSell);
-                    trade(m_instrument, toContract, toDD.bids[0].price, vol, OkexContractTradeType.TT_OpenBuy);
+                    //trade(m_instrument, fromContract, fromDD.asks[0].price, vol, OkexContractTradeType.TT_CloseSell);
+                    //trade(m_instrument, toContract, toDD.bids[0].price, vol, OkexContractTradeType.TT_OpenBuy);
                 }
             }
 

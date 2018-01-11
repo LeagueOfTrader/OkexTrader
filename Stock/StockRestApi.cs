@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OkexTrader.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -1047,6 +1048,88 @@ namespace com.okcoin.rest.stock
                 throw e;
             }
             return result;
+        }
+
+        /// <summary>
+        /// 下单交易 异步
+        /// </summary>
+        /// <param name="symbol">btc_usd: 比特币 ltc_usd: 莱特币</param>
+        /// <param name="type">买卖类型： 限价单（buy/sell） 市价单（buy_market/sell_market）</param>
+        /// <param name="price">下单价格 [限价买单(必填)： 大于等于0，小于等于1000000 |  市价买单(必填)： BTC :最少买入0.01个BTC 的金额(金额>0.01*卖一价) / LTC :最少买入0.1个LTC 的金额(金额>0.1*卖一价)]</param>
+        /// <param name="amount"> 交易数量 [限价卖单（必填）：BTC 数量大于等于0.01 / LTC 数量大于等于0.1 | 市价卖单（必填）： BTC :最少卖出数量大于等于0.01 / LTC :最少卖出数量大于等于0.1]</param>
+        /// <returns></returns>
+        public void tradeAsync(String symbol, String type,
+                String price, String amount, HttpAsyncReq.ResponseCallback callback)
+        {
+            try
+            {
+                // 构造参数签名
+                Dictionary<String, String> paras = new Dictionary<String, String>();
+                paras.Add("api_key", api_key);
+                if (!StringUtil.isEmpty(symbol))
+                {
+                    paras.Add("symbol", symbol);
+                }
+                if (!StringUtil.isEmpty(type))
+                {
+                    paras.Add("type", type);
+                }
+                if (!StringUtil.isEmpty(price))
+                {
+                    paras.Add("price", price);
+                }
+                if (!StringUtil.isEmpty(amount))
+                {
+                    paras.Add("amount", amount);
+                }
+                String sign = MD5Util.buildMysignV1(paras, this.secret_key);
+                paras.Add("sign", sign);
+
+                // 发送post请求
+                HttpUtilManager httpUtil = HttpUtilManager.getInstance();
+                httpUtil.requestHttpPostAsync(url_prex, TRADE_URL,
+                       paras, callback);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        /// <summary>
+        /// 撤销订单 异步
+        /// </summary>
+        /// <param name="symbol">btc_usd: 比特币 ltc_usd: 莱特币</param>
+        /// <param name="order_id">订单ID(多个订单ID中间以","分隔,一次最多允许撤消3个订单)</param>
+        /// <returns></returns>
+        public void cancelOrderAsync(String symbol, String order_id, HttpAsyncReq.ResponseCallback callback)
+        {
+            try
+            {// 构造参数签名
+                Dictionary<String, String> paras = new Dictionary<String, String>();
+                paras.Add("api_key", api_key);
+                if (!StringUtil.isEmpty(symbol))
+                {
+                    paras.Add("symbol", symbol);
+                }
+                if (!StringUtil.isEmpty(order_id))
+                {
+                    paras.Add("order_id", order_id);
+                }
+
+                String sign = MD5Util.buildMysignV1(paras, this.secret_key);
+                paras.Add("sign", sign);
+
+                // 发送post请求
+                HttpUtilManager httpUtil = HttpUtilManager.getInstance();
+                httpUtil.requestHttpPostAsync(url_prex, CANCEL_ORDER_URL,
+                       paras, callback);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
         }
     }
 }

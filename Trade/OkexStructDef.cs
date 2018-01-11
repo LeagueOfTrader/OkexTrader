@@ -6,14 +6,15 @@ using System.Threading.Tasks;
 
 namespace OkexTrader.Trade
 {
-    public enum OkexFutureContractType
+    // future
+    enum OkexFutureContractType
     {
         FC_ThisWeek,
         FC_NextWeek,
         FC_Quarter
     }
 
-    public enum OkexFutureInstrumentType
+    enum OkexFutureInstrumentType
     {
         FI_BTC,
         FI_LTC,
@@ -22,13 +23,13 @@ namespace OkexTrader.Trade
         FI_BCH,
     }
 
-    public enum OkexFutureTradeDirectionType
+    enum OkexFutureTradeDirectionType
     {
         FTD_Buy,
         FTD_Sell
     }
 
-    public enum OkexKLineType
+    enum OkexKLineType
     {
         KL_1Min,
         KL_3Min,
@@ -61,6 +62,12 @@ namespace OkexTrader.Trade
         OS_Canceled = -1,
         OS_CancelProcessing = 4,
         OS_Canceling = 5
+    }
+
+    enum OkexDevolveType
+    {
+        DT_Future2Stock,
+        DT_Stock2Future
     }
 
     class OkexFutureMarketData
@@ -136,7 +143,7 @@ namespace OkexTrader.Trade
         public long receiveTimestamp;
     }
 
-    class OkexFutureOrderInfo
+    class OkexFutureCrossInfo
     {
         public double price = 0.0;
         public long volume = 0;
@@ -144,8 +151,8 @@ namespace OkexTrader.Trade
 
     class OkexFutureDepthData
     {
-        public OkexFutureOrderInfo[] asks = new OkexFutureOrderInfo[5];
-        public OkexFutureOrderInfo[] bids = new OkexFutureOrderInfo[5];
+        public OkexFutureCrossInfo[] asks = new OkexFutureCrossInfo[5];
+        public OkexFutureCrossInfo[] bids = new OkexFutureCrossInfo[5];
         public long sendTimestamp = 0;
         public long receiveTimestamp = 0;
 
@@ -153,8 +160,8 @@ namespace OkexTrader.Trade
         {
             for (int i = 0; i < 5; i++)
             {
-                bids[i] = new OkexFutureOrderInfo();
-                asks[i] = new OkexFutureOrderInfo();
+                bids[i] = new OkexFutureCrossInfo();
+                asks[i] = new OkexFutureCrossInfo();
             }
         }
     }
@@ -503,8 +510,8 @@ namespace OkexTrader.Trade
         public long orderID;
     }
 
-    //
-    public enum OkexCoinType
+    // stock
+    enum OkexCoinType
     {
         CT_BTC,
         CT_LTC,
@@ -514,7 +521,7 @@ namespace OkexTrader.Trade
         CT_USDT
     }
 
-    class OkexStockOrderInfo
+    class OkexStockCrossInfo
     {
         public double price = 0.0;
         public double volume = 0.0;
@@ -522,8 +529,8 @@ namespace OkexTrader.Trade
 
     class OkexStockDepthData
     {
-        public OkexStockOrderInfo[] asks = new OkexStockOrderInfo[10];
-        public OkexStockOrderInfo[] bids = new OkexStockOrderInfo[10];
+        public OkexStockCrossInfo[] asks = new OkexStockCrossInfo[10];
+        public OkexStockCrossInfo[] bids = new OkexStockCrossInfo[10];
         public long sendTimestamp = 0;
         public long receiveTimestamp = 0;
 
@@ -531,8 +538,8 @@ namespace OkexTrader.Trade
         {
             for (int i = 0; i < 10; i++)
             {
-                bids[i] = new OkexStockOrderInfo();
-                asks[i] = new OkexStockOrderInfo();
+                bids[i] = new OkexStockCrossInfo();
+                asks[i] = new OkexStockCrossInfo();
             }
         }
     }
@@ -578,5 +585,30 @@ namespace OkexTrader.Trade
 
         public long timestamp;
         public long receiveTimestamp;
+    }
+
+    enum OkexStockTradeType
+    {
+        STT_Buy,
+        STT_Sell,
+        STT_BuyMarketPrice,
+        STT_SellMarketPrice
+    }
+
+    class OkexStockOrderBriefInfo
+    {        
+        //委托
+        public double price;
+        public double amount;
+        public OkexStockTradeType tradeType;
+        public string createDate;
+        //成交
+        public double dealAmount;
+        public double avgDealPrice;
+
+        public OkexOrderStatusType status;
+        public long orderID;
+        public OkexCoinType commodity;
+        public OkexCoinType currency;
     }
 }

@@ -27,6 +27,26 @@ namespace OkexTrader.Trade
 
         static string[] kLineTypeName = { "1min", "3min", "5min", "15min", "30min", "1hour", "2hour", "4hour", "6hour", "12hour", "day", "3day", "week" };
 
+        // stock
+        static Dictionary<string, OkexStockTradeType> stockTradeTypeMap = new Dictionary<string, OkexStockTradeType>() {
+            {"sell",  OkexStockTradeType.STT_Sell},
+            {"buy",  OkexStockTradeType.STT_Buy},
+            {"sell_market",  OkexStockTradeType.STT_SellMarketPrice},
+            {"buy_market",  OkexStockTradeType.STT_BuyMarketPrice}
+        };
+
+        static Dictionary<string, OkexCoinType> coinTypeMap = new Dictionary<string, OkexCoinType>()
+        {
+            {"btc", OkexCoinType.CT_BTC },
+            {"ltc", OkexCoinType.CT_LTC },
+            {"etc", OkexCoinType.CT_ETC },
+            {"bch", OkexCoinType.CT_BCH },
+            {"eth", OkexCoinType.CT_ETH },
+            {"usdt", OkexCoinType.CT_USDT }
+        };
+
+        // future
+
         public static OkexFutureInstrumentType parseInstrument(string str)
         {
             return instrumentQuotationMap[str];
@@ -61,6 +81,39 @@ namespace OkexTrader.Trade
         public static string getCoinName(OkexCoinType ct)
         {
             return coinName[(int)ct];
+        }
+
+        public static OkexCoinType parseCoinType(string str)
+        {
+            return coinTypeMap[str];
+        }
+
+        public static string getStockTradeTypeStr(OkexStockTradeType tt)
+        {
+            string str = "";
+            switch (tt)
+            {
+                case OkexStockTradeType.STT_Buy:
+                    str = "buy";
+                    break;
+                case OkexStockTradeType.STT_Sell:
+                    str = "sell";
+                    break;
+                case OkexStockTradeType.STT_BuyMarketPrice:
+                    str = "buy_market";
+                    break;
+                case OkexStockTradeType.STT_SellMarketPrice:
+                    str = "sell_market";
+                    break;
+                default:
+                    break;
+            }
+            return str;
+        }
+
+        public static OkexStockTradeType parseStockTradeType(string str)
+        {
+            return stockTradeTypeMap[str];
         }
     }
 }

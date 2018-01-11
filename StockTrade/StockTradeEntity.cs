@@ -7,35 +7,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Timers;
 
-namespace OkexTrader.FutureTrade
+namespace OkexTrader.StockTrade
 {
-    class FutureTradeEntity : TradeEntity
+    class StockTradeEntity : TradeEntity
     {
-        public delegate void TradeEventHandler(long orderID, TradeQueryResult result, OkexFutureOrderBriefInfo info);
+        public delegate void StockTradeEventHandler(long orderID, TradeQueryResult result, OkexStockOrderBriefInfo info);
+        private event StockTradeEventHandler m_stockTradeEventHandler;
 
-        private event TradeEventHandler m_tradeEventHandler;        
+        private OkexCoinType m_commodity;
+        private OkexCoinType m_currency;
 
-        private OkexFutureInstrumentType m_instrument;
-        private OkexFutureContractType m_contract;
-        
-        public FutureTradeEntity(OkexFutureInstrumentType instrument, OkexFutureContractType contract, long queryInterval = 1000) : base(queryInterval)
+        public StockTradeEntity(OkexCoinType comm, OkexCoinType curr, long queryInterval = 1000) : base(queryInterval)
         {
-            m_instrument = instrument;
-            m_contract = contract;     
+            m_commodity = comm;
+            m_currency = curr;
         }
 
-        public void setTradeEventHandler(TradeEventHandler handler)
+        public void setTradeEventHandler(StockTradeEventHandler handler)
         {
-            m_tradeEventHandler += handler;
+            m_stockTradeEventHandler += handler;
         }
 
-        public void onTradeEvent(long orderID, TradeQueryResult result, OkexFutureOrderBriefInfo info)
+        public void onTradeEvent(long orderID, TradeQueryResult result, OkexStockOrderBriefInfo info)
         {
-            if (m_tradeEventHandler != null)
+            if (m_stockTradeEventHandler != null)
             {
-                m_tradeEventHandler(orderID, result, info);
+                m_stockTradeEventHandler(orderID, result, info);
             }
         }
 
@@ -66,12 +64,12 @@ namespace OkexTrader.FutureTrade
                     onTradeEvent(m_orderID, TradeQueryResult.TQR_Timeout, null);
                     return;
                 }
-                OkexFutureOrderBriefInfo info;
+                OkexStockOrderBriefInfo info;
                 if (m_resultTimer != null)
                 {
                     m_resultTimer.Start();
                 }
-                bool ret = OkexFutureTrader.Instance.getOrderInfoByID(m_instrument, m_contract, m_orderID, out info);
+                bool ret = OkexStockTrader.Instance.getOrderInfoByID(m_commodity, m_currency, m_orderID, out info);
                 if (ret)
                 {
                     if (m_resultTimer != null)
@@ -92,6 +90,5 @@ namespace OkexTrader.FutureTrade
         {
             onTradeEvent(m_orderID, TradeQueryResult.TQR_Timeout, null);
         }
- 
     }
 }

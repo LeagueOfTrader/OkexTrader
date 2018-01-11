@@ -24,13 +24,13 @@ namespace OkexTrader.Strategy
         }
     }
 
-    abstract class OkexStrategy : FutureTradeEntity
+    abstract class OkexStrategy
     {
         public abstract void update();
 
-        public override void onTradeOrdered(long orderID)
+        public void onTradeOrdered(long orderID)
         {
             //
         }
-    }
+    } 
 }

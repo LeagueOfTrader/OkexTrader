@@ -8,6 +8,24 @@ using System.Threading.Tasks;
 
 namespace OkexTrader.Util
 {
+    abstract class HttpAsyncResponser
+    {
+        protected bool m_responsed = false;
+
+        public void onAsyncCallback(String str)
+        {
+            onResponsed(str);
+            m_responsed = true;
+        }
+
+        protected abstract void onResponsed(String str);
+
+        public bool isResponsed()
+        {
+            return m_responsed;
+        }
+    }
+
     class HttpAsyncReq
     {
         public delegate void ResponseCallback(String content);
