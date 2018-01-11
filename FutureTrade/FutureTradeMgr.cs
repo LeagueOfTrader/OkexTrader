@@ -21,14 +21,6 @@ namespace OkexTrader.FutureTrade
             double price, long volume, OkexContractTradeType type, uint leverRate = 10, 
             FutureTradeEntity.TradeEventHandler callback = null, long queryInterval = 1000)
         {
-
-            instrument = inst;
-            contract = cntr;
-
-            queryTimer.Elapsed += new ElapsedEventHandler(queryTrade);
-            resultTimer.Elapsed += new ElapsedEventHandler(onTimeout);
-        }
-
             FutureTradeEntity entity = new FutureTradeEntity(instrument, contract, queryInterval);
             if (callback != null)
             {
